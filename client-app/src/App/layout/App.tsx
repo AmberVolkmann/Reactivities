@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { Container, Header, List } from 'semantic-ui-react';
+import { Container } from 'semantic-ui-react';
 import { Activity } from '../models/activity';
 import ActivityDashboard from '../../features/activities/dashboard/ActivityDashboard';
 import NavBar from './NavBar';
 import './styles.css';
+import {v4 as uuid} from 'uuid';
 
 
 function App() {
@@ -22,7 +23,7 @@ function App() {
     .then(response => {
       setActivities(response.data);
     })
-  }, [])
+  }, []) 
 
   function handleSelectActivity(id: string) {
     // This is going to loop of the activities array and search for an activity with a matching ID and return true.
@@ -44,10 +45,16 @@ function App() {
 
   function handleCreateOrEditActivity(activity: Activity) {
     // Check for the presence of an activity ID, if we do that means that we're going to be editing the activity with setActvities
-    activity.id ? setActivities([...activities.filter(x => x.id !== activity.id), activity]) : setActivities ([...activities, activity]);
+    activity.id 
+      ? setActivities([...activities.filter(x => x.id !== activity.id), activity]) 
+      : setActivities ([...activities, {...activity, id: uuid()}]); // The uuid will be created every time we create a new activity
     setEditMode(false);
     // we're going to set the selected/displayed activity to the one we just created
     setSelectedActivity(activity);
+  }
+
+  function handleDeleteActivity(id: string) {
+    setActivities([...activities.filter(x => x.id !== id)])
   }
 
   return (
@@ -62,7 +69,8 @@ function App() {
             editMode={editMode}
             openForm={handleFormOpen}
             closeForm={handleFormClose}
-            createOrEdit={handleCreateOrEditActivity}  
+            createOrEdit={handleCreateOrEditActivity}
+            deleteActivity={handleDeleteActivity}  
           />
       </Container>
     </>
