@@ -1,17 +1,22 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Grid } from "semantic-ui-react";
 import { useStore } from "../../../App/stores/store";
 import ActivityList from './ActivityList';
-import ActivityDetails from './details/ActivityDetails';
-import ActivityForm from './form/ActivityForm';
 import { observer } from 'mobx-react-lite';
+import LoadingComponent from "../../../App/layout/LoadingComponent";
 
 
 export default observer(function ActivityDashboard(){
-
     const {activityStore} = useStore();
+    const {loadActivities, activityRegistry} = activityStore;
 
-    const {selectedActivity, editMode} = activityStore;
+    // Axios is promise based, so we'll have to do something after recieving the response
+    useEffect(() => {
+      if (activityRegistry.size <= 1) loadActivities();
+      // these are the dependencies of the above function
+    }, [activityRegistry.size, loadActivities]) 
+  
+    if (activityStore.loadingInitial) return <LoadingComponent content='Loading app' />
 
     return (
         <Grid>
@@ -19,10 +24,7 @@ export default observer(function ActivityDashboard(){
                 <ActivityList />
             </Grid.Column>
             <Grid.Column width='6'>
-                {selectedActivity && !editMode &&
-                <ActivityDetails /> }
-                { editMode &&
-                <ActivityForm /> }
+                <h2>Activity Filters</h2>
             </Grid.Column>
         </Grid>
     )
