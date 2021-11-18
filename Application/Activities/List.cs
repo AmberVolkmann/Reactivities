@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Application.Core;
 using Domain;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -13,22 +14,21 @@ namespace Application.Activities
 {
     public class List
     {
-        public class Query : IRequest<List<Activity>> {}
+        public class Query : IRequest<Result<List<Activity>>> {}
 
-        public class Handler : IRequestHandler<Query, List<Activity>>
+        public class Handler : IRequestHandler<Query, Result<List<Activity>>>
         {
-        private readonly DataContext _context;
-        private readonly ILogger _logger;
+            private readonly DataContext _context;
 
             public Handler(DataContext context)
             {
                 _context = context;
             }
 
-            async public Task<List<Activity>> Handle(Query request, CancellationToken cancellationToken)
+            async public Task<Result<List<Activity>>> Handle(Query request, CancellationToken cancellationToken)
             {
                 // This is for cancelling the request whenever a browser is closed, etc.
-                return await _context.Activities.ToListAsync(cancellationToken);
+                return Result<List<Activity>>.Success(await _context.Activities.ToListAsync(cancellationToken));
             }
         }
     }
